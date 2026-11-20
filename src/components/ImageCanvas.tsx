@@ -417,7 +417,7 @@ export function ImageCanvas(props: Props) {
   };
 
   return (
-    <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-slate-700">
+    <div   ref={containerRef}   className="relative h-full w-full overflow-hidden bg-slate-700 transition-colors dark:bg-slate-950" >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 h-full w-full touch-none"

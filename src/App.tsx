@@ -7,10 +7,37 @@ import { loadPrefs, savePrefs } from "@/lib/storage";
 import { cn } from "@/utils/cn";
 
 type Tab = "image" | "text";
+type Theme = "light" | "dark" | "system";
+
+function getSystemTheme(): "light" | "dark" {
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function applyTheme(theme: Theme) {
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" && getSystemTheme() === "dark");
+
+  document.documentElement.classList.toggle("dark", isDark);
+}
 
 function Shell() {
   const notify = useToast();
-  const [tab, setTab] = useState<Tab>(() => (loadPrefs<{ tab?: Tab }>({}).tab === "text" ? "text" : "image"));
+
+  const [tab, setTab] = useState<Tab>(() =>
+    loadPrefs<{ tab?: Tab }>({}).tab === "text" ? "text" : "image",
+  );
+
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = loadPrefs<{ theme?: Theme }>({}).theme;
+    return saved === "light" || saved === "dark" || saved === "system"
+      ? saved
+      : "system";
+  });
+
   // bumping this key unmounts both workspaces => all in-memory files, previews, Blob URLs and OCR workers are released
   const [session, setSession] = useState(0);
 
@@ -18,26 +45,64 @@ function Shell() {
     savePrefs({ tab });
   }, [tab]);
 
+  useEffect(() => {
+    applyTheme(theme);
+    savePrefs({ theme });
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme !== "system") return;
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => applyTheme("system");
+
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
+  }, [theme]);
+
   const wipe = useCallback(() => {
     void disposeOcr();
     setSession((s) => s + 1);
-    notify("已清除所有工作區資料（檔案、預覽、文字、OCR 結果皆已從記憶體移除）", "success");
+    notify(
+      "已清除所有工作區資料（檔案、預覽、文字、OCR 結果皆已從記憶體移除）",
+      "success",
+    );
   }, [notify]);
 
+  const cycleTheme = useCallback(() => {
+    setTheme((current) =>
+      current === "light" ? "dark" : current === "dark" ? "system" : "light",
+    );
+  }, []);
+
+  const themeLabel =
+    theme === "light" ? "☀️ 淺色" : theme === "dark" ? "🌙 深色" : "🖥 跟隨系統";
+
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100 text-slate-900 lg:h-screen lg:overflow-hidden">
-      <header className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-slate-950 px-4 py-2 text-white">
+    <div className="flex min-h-screen flex-col bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 lg:h-screen lg:overflow-hidden">
+      <header className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-slate-950 px-4 py-2 text-white transition-colors dark:border-b dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-600 text-lg" aria-hidden>
+          <span
+            className="grid h-8 w-8 place-items-center rounded-md bg-blue-600 text-lg"
+            aria-hidden
+          >
             🛡
           </span>
           <div className="leading-tight">
-            <h1 className="text-base font-extrabold tracking-tight">PII Redactor & Image Masker</h1>
-            <p className="text-[11px] text-slate-300">敏感資料去識別化／遮蔽工具</p>
+            <h1 className="text-base font-extrabold tracking-tight">
+              PII Redactor &amp; Image Masker
+            </h1>
+            <p className="text-[11px] text-slate-300">
+              敏感資料去識別化／遮蔽工具
+            </p>
           </div>
         </div>
 
-        <nav className="flex rounded-lg bg-slate-800 p-1" role="tablist" aria-label="工作模式">
+        <nav
+          className="flex rounded-lg bg-slate-800 p-1"
+          role="tablist"
+          aria-label="工作模式"
+        >
           {(
             [
               ["image", "🖼 圖片遮蔽"],
@@ -51,7 +116,9 @@ function Shell() {
               onClick={() => setTab(id)}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-blue-400",
-                tab === id ? "bg-white text-slate-950" : "text-slate-200 hover:bg-slate-700",
+                tab === id
+                  ? "bg-white text-slate-950 dark:bg-slate-100 dark:text-slate-950"
+                  : "text-slate-200 hover:bg-slate-700",
               )}
             >
               {label}
@@ -70,17 +137,41 @@ function Shell() {
             </span>
             🔒 100% 本地離線處理・資料絕不上傳
           </span>
-          <Btn variant="danger" onClick={wipe} title="立即清空記憶體內所有檔案、預覽與文字（Preset 與偏好設定會保留）">
+
+          <Btn
+            variant="ghost"
+            onClick={cycleTheme}
+            title="切換外觀：淺色 → 深色 → 跟隨系統"
+          >
+            {themeLabel}
+          </Btn>
+
+          <Btn
+            variant="danger"
+            onClick={wipe}
+            title="立即清空記憶體內所有檔案、預覽與文字（Preset 與偏好設定會保留）"
+          >
             🧹 清除所有工作區資料
           </Btn>
         </div>
       </header>
 
       <div key={session} className="flex min-h-0 flex-1 flex-col">
-        <div className={cn("min-h-0 flex-1 flex-col", tab === "image" ? "flex" : "hidden")}>
+        <div
+          className={cn(
+            "min-h-0 flex-1 flex-col",
+            tab === "image" ? "flex" : "hidden",
+          )}
+        >
           <ImageRedactor active={tab === "image"} />
         </div>
-        <div className={cn("min-h-0 flex-1 flex-col", tab === "text" ? "flex" : "hidden")}>
+
+        <div
+          className={cn(
+            "min-h-0 flex-1 flex-col",
+            tab === "text" ? "flex" : "hidden",
+          )}
+        >
           <TextRedactor />
         </div>
       </div>

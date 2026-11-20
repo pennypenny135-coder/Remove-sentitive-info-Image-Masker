@@ -465,15 +465,15 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
       />
 
       {/* ---------------- thumbnails ---------------- */}
-      <aside className="flex max-h-44 shrink-0 flex-row border-b border-slate-300 bg-white lg:max-h-none lg:w-44 lg:flex-col lg:border-r lg:border-b-0">
-        <div className="flex shrink-0 flex-col gap-1.5 border-slate-300 p-2 lg:border-b">
+      <aside className="flex max-h-44 shrink-0 flex-row border-b border-slate-300 bg-white transition-colors dark:border-slate-800 dark:bg-slate-900 lg:max-h-none lg:w-44 lg:flex-col lg:border-r lg:border-b-0">
+        <div className="flex shrink-0 flex-col gap-1.5 border-slate-300 p-2 dark:border-slate-800 lg:border-b">
           <Btn variant="primary" size="sm" onClick={() => fileInput.current?.click()}>
             ＋ 選取圖片
           </Btn>
           <Btn size="sm" variant="danger" disabled={!items.length} onClick={clearAll}>
             清空全部
           </Btn>
-          <div className="hidden text-center text-[11px] text-slate-700 lg:block">{items.length} 張圖片</div>
+          <div className="hidden text-center text-[11px] text-slate-700 dark:text-slate-300 lg:block">{items.length} 張圖片</div>
         </div>
         <div className="flex min-h-0 flex-1 flex-row gap-2 overflow-auto p-2 lg:flex-col">
           {items.map((it) => {
@@ -483,19 +483,21 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
               <div
                 key={it.id}
                 className={cn(
-                  "group relative w-28 shrink-0 cursor-pointer rounded-md border-2 bg-slate-100 p-1 lg:w-full",
-                  it.id === activeId ? "border-blue-700 bg-blue-50" : "border-transparent hover:border-slate-400",
+                  "group relative w-28 shrink-0 cursor-pointer rounded-md border-2 bg-slate-100 p-1 transition-colors dark:bg-slate-800 lg:w-full",
+                  it.id === activeId
+                    ? "border-blue-700 bg-blue-50 dark:border-blue-500 dark:bg-blue-950"
+                    : "border-transparent hover:border-slate-400 dark:hover:border-slate-600",
                 )}
                 onClick={() => {
                   setActiveId(it.id);
                   setSelectedId(null);
                 }}
               >
-                <img src={it.thumb} alt={it.name} className="h-20 w-full rounded bg-slate-300 object-contain" draggable={false} />
-                <div className="mt-1 truncate text-[11px] font-medium text-slate-900" title={it.name}>
+                <img src={it.thumb} alt={it.name} className="h-20 w-full rounded bg-slate-300 object-contain dark:bg-slate-700" draggable={false} />
+                <div className="mt-1 truncate text-[11px] font-medium text-slate-900 dark:text-slate-100" title={it.name}>
                   {it.name}
                 </div>
-                <div className="flex gap-1 text-[10px] text-slate-700">
+                <div className="flex gap-1 text-[10px] text-slate-700 dark:text-slate-400">
                   <span>{it.width}×{it.height}</span>
                 </div>
                 {(n > 0 || s > 0) && (
@@ -529,14 +531,14 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
 
       {/* ---------------- canvas ---------------- */}
       <main className="relative flex min-h-[420px] min-w-0 flex-1 flex-col">
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-300 bg-white px-2 py-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-300 bg-white px-2 py-1.5 transition-colors dark:border-slate-800 dark:bg-slate-900">
           <Btn size="sm" active={tool === "draw"} onClick={() => setTool("draw")} title="拖拉建立／選取／移動／縮放遮蔽框">
             ▭ 畫框
           </Btn>
           <Btn size="sm" active={tool === "pan"} onClick={() => setTool("pan")} title="拖曳平移畫面（亦可按住空白鍵或滑鼠中鍵）">
             ✋ 平移
           </Btn>
-          <span className="mx-1 h-5 w-px bg-slate-300" />
+          <span className="mx-1 h-5 w-px bg-slate-300 dark:bg-slate-700" />
           <Btn size="sm" disabled={!active?.past.length} onClick={undo} title="復原 (Ctrl+Z)">
             ↶ Undo
           </Btn>
@@ -546,11 +548,11 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
           <Btn size="sm" variant="danger" disabled={!selectedId} onClick={deleteSelected} title="刪除選取的框 (Delete)">
             🗑 刪除框
           </Btn>
-          <span className="mx-1 h-5 w-px bg-slate-300" />
+          <span className="mx-1 h-5 w-px bg-slate-300 dark:bg-slate-700" />
           <Btn size="sm" onClick={() => canvasRef.current?.zoomBy(1 / 1.25)} aria-label="縮小">
             －
           </Btn>
-          <span className="w-12 text-center font-mono text-xs font-bold text-slate-900">{Math.round(zoom * 100)}%</span>
+          <span className="w-12 text-center font-mono text-xs font-bold text-slate-900 dark:text-slate-100">{Math.round(zoom * 100)}%</span>
           <Btn size="sm" onClick={() => canvasRef.current?.zoomBy(1.25)} aria-label="放大">
             ＋
           </Btn>
@@ -560,7 +562,7 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
           <Btn size="sm" onClick={() => canvasRef.current?.actual()}>
             100%
           </Btn>
-          <span className="ml-auto hidden text-[11px] text-slate-700 xl:inline">拖曳畫框 · 滾輪縮放 · 空白鍵／中鍵平移 · 方向鍵微調 · Del 刪除</span>
+          <span className="ml-auto hidden text-[11px] text-slate-700 dark:text-slate-400 xl:inline">拖曳畫框 · 滾輪縮放 · 空白鍵／中鍵平移 · 方向鍵微調 · Del 刪除</span>
         </div>
 
         <div className="relative min-h-0 flex-1">
@@ -580,11 +582,11 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
               onZoom={setZoom}
             />
           ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-100 p-8 text-center">
-              <div className="rounded-xl border-2 border-dashed border-slate-500 bg-white px-10 py-12">
+            <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-100 p-8 text-center transition-colors dark:bg-slate-950">
+              <div className="rounded-xl border-2 border-dashed border-slate-500 bg-white px-10 py-12 transition-colors dark:border-slate-600 dark:bg-slate-900">
                 <div className="text-4xl">🖼️</div>
-                <p className="mt-3 text-lg font-bold text-slate-900">拖放圖片到此處</p>
-                <p className="mt-1 text-sm text-slate-700">支援 PNG / JPG / WEBP，可一次加入多張。圖片只會在本機瀏覽器記憶體中處理。</p>
+                <p className="mt-3 text-lg font-bold text-slate-900 dark:text-slate-100">拖放圖片到此處</p>
+                <p className="mt-1 text-sm text-slate-700 dark:text-slate-400">支援 PNG / JPG / WEBP，可一次加入多張。圖片只會在本機瀏覽器記憶體中處理。</p>
                 <Btn variant="primary" className="mt-4" onClick={() => fileInput.current?.click()}>
                   選取圖片…
                 </Btn>
@@ -599,19 +601,19 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
           )}
         </div>
         {active && (
-          <div className="flex items-center gap-3 border-t border-slate-300 bg-white px-3 py-1 text-xs text-slate-800">
+          <div className="flex items-center gap-3 border-t border-slate-300 bg-white px-3 py-1 text-xs text-slate-800 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
             <span className="truncate font-medium">{active.name}</span>
             <span className="font-mono">
               {active.width} × {active.height}px
             </span>
             <span>遮蔽框 {confirmed.length}</span>
-            {suggested.length > 0 && <span className="font-bold text-amber-700">待確認 {suggested.length}</span>}
+            {suggested.length > 0 && <span className="font-bold text-amber-700 dark:text-amber-400">待確認 {suggested.length}</span>}
           </div>
         )}
       </main>
 
       {/* ---------------- side panel ---------------- */}
-      <aside className="w-full shrink-0 overflow-y-auto border-t border-slate-300 bg-white lg:w-80 lg:border-t-0 lg:border-l">
+      <aside className="w-full shrink-0 overflow-y-auto border-t border-slate-300 bg-white transition-colors dark:border-slate-800 dark:bg-slate-900 lg:w-80 lg:border-t-0 lg:border-l">
         <Section title="遮蔽樣式">
           <div className="mb-3 grid grid-cols-3 gap-1">
             {kinds.map((k) => (
@@ -632,19 +634,24 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
                     title={s.n}
                     aria-label={s.n}
                     onClick={() => set("color", s.c)}
-                    className={cn("h-7 w-7 rounded border-2", cfg.color.toLowerCase() === s.c ? "border-blue-700 ring-2 ring-blue-300" : "border-slate-400")}
+                    className={cn(
+                      "h-7 w-7 rounded border-2",
+                      cfg.color.toLowerCase() === s.c
+                        ? "border-blue-700 ring-2 ring-blue-300 dark:border-blue-500 dark:ring-blue-800"
+                        : "border-slate-400 dark:border-slate-600",
+                    )}
                     style={{ background: s.c }}
                   />
                 ))}
-                <label className="ml-1 flex items-center gap-1 text-xs font-medium text-slate-800">
+                <label className="ml-1 flex items-center gap-1 text-xs font-medium text-slate-800 dark:text-slate-200">
                   自訂
-                  <input type="color" value={cfg.color} onChange={(e) => set("color", e.target.value)} className="h-7 w-9 cursor-pointer rounded border border-slate-400" />
+                  <input type="color" value={cfg.color} onChange={(e) => set("color", e.target.value)} className="h-7 w-9 cursor-pointer rounded border border-slate-400 dark:border-slate-600" />
                 </label>
               </div>
               <input className={inputCls} placeholder="文字標籤（可留空），例如 REDACTED" value={cfg.label} onChange={(e) => set("label", e.target.value)} />
               <div className="flex flex-wrap gap-1">
                 {["REDACTED", "已遮蔽", "CONFIDENTIAL"].map((l) => (
-                  <Btn key={l} size="sm" variant="ghost" className="border-slate-300!" onClick={() => set("label", l)}>
+                  <Btn key={l} size="sm" variant="ghost" className="border-slate-300! dark:border-slate-600!" onClick={() => set("label", l)}>
                     {l}
                   </Btn>
                 ))}
@@ -659,7 +666,7 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
                 label="依解像度自動放大強度"
                 title="高解像度相片會自動加大方格／模糊半徑，避免遮蔽不足"
               />
-              <p className="mt-1 text-[11px] leading-snug text-slate-700">馬賽克以方格平均色計算（不可逆）；高斯模糊僅使用框內像素。要最高安全性建議用純色遮蓋。</p>
+              <p className="mt-1 text-[11px] leading-snug text-slate-700 dark:text-slate-400">馬賽克以方格平均色計算（不可逆）；高斯模糊僅使用框內像素。要最高安全性建議用純色遮蓋。</p>
             </div>
           )}
         </Section>
@@ -673,24 +680,26 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
           }
         >
           {confirmed.length === 0 ? (
-            <p className="text-xs text-slate-700">在畫布上拖拉滑鼠建立遮蔽框。點選框可移動，拖曳角落／邊緣可調整大小。</p>
+            <p className="text-xs text-slate-700 dark:text-slate-400">在畫布上拖拉滑鼠建立遮蔽框。點選框可移動，拖曳角落／邊緣可調整大小。</p>
           ) : (
             <ul className="max-h-36 space-y-1 overflow-auto">
               {confirmed.map((b, i) => (
                 <li
                   key={b.id}
                   className={cn(
-                    "flex cursor-pointer items-center justify-between rounded border px-2 py-1 text-xs",
-                    b.id === selectedId ? "border-blue-700 bg-blue-50 font-bold" : "border-slate-300 hover:bg-slate-100",
+                    "flex cursor-pointer items-center justify-between rounded border px-2 py-1 text-xs transition-colors",
+                    b.id === selectedId
+                      ? "border-blue-700 bg-blue-50 font-bold dark:border-blue-500 dark:bg-blue-950"
+                      : "border-slate-300 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800",
                   )}
                   onClick={() => setSelectedId(b.id)}
                 >
                   <span>
-                    #{i + 1} <span className="font-mono text-slate-700">{b.w}×{b.h} @ {b.x},{b.y}</span>
+                    #{i + 1} <span className="font-mono text-slate-700 dark:text-slate-300">{b.w}×{b.h} @ {b.x},{b.y}</span>
                   </span>
                   <button
                     type="button"
-                    className="rounded px-1 font-bold text-red-700 hover:bg-red-100"
+                    className="rounded px-1 font-bold text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-950"
                     aria-label="刪除此框"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -706,14 +715,16 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
         </Section>
 
         <Section title="本地 OCR 半自動偵測">
-          <p className="mb-2 text-xs leading-snug text-slate-700">使用 tesseract.js 於瀏覽器本地執行（模型已內建，不連網）。偵測結果只會成為「建議框」，需你確認。</p>
+          <p className="mb-2 text-xs leading-snug text-slate-700 dark:text-slate-400">使用 tesseract.js 於瀏覽器本地執行（模型已內建，不連網）。偵測結果只會成為「建議框」，需你確認。</p>
           <div className="mb-2 flex flex-wrap gap-1.5">
             {OCR_CATS.map((c) => (
               <label
                 key={c}
                 className={cn(
-                  "flex cursor-pointer items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold select-none",
-                  ocr.cats[c] ? "border-blue-700 bg-blue-700 text-white" : "border-slate-400 bg-white text-slate-800",
+                  "flex cursor-pointer items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold select-none transition-colors",
+                  ocr.cats[c]
+                    ? "border-blue-700 bg-blue-700 text-white dark:border-blue-500 dark:bg-blue-600"
+                    : "border-slate-400 bg-white text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200",
                 )}
               >
                 <input type="checkbox" className="sr-only" checked={!!ocr.cats[c]} onChange={(e) => setOcr((o) => ({ ...o, cats: { ...o.cats, [c]: e.target.checked } }))} />
@@ -750,9 +761,9 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
             </div>
           )}
           {suggested.length > 0 && (
-            <div className="mt-3 rounded-md border border-amber-500 bg-amber-50 p-2">
+            <div className="mt-3 rounded-md border border-amber-500 bg-amber-50 p-2 transition-colors dark:border-amber-600 dark:bg-amber-950">
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-900">建議遮蔽框 {suggested.length}</span>
+                <span className="text-xs font-bold text-amber-900 dark:text-amber-300">建議遮蔽框 {suggested.length}</span>
                 <span className="flex gap-1">
                   <Btn size="sm" variant="success" onClick={() => acceptSuggestions()}>
                     全部接受
@@ -764,14 +775,22 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
               </div>
               <ul className="max-h-40 space-y-1 overflow-auto">
                 {suggested.map((b) => (
-                  <li key={b.id} className={cn("flex items-center justify-between gap-1 rounded border bg-white px-1.5 py-1 text-xs", b.id === selectedId ? "border-blue-700" : "border-amber-300")}>
+                  <li
+                    key={b.id}
+                    className={cn(
+                      "flex items-center justify-between gap-1 rounded border bg-white px-1.5 py-1 text-xs transition-colors dark:bg-slate-900",
+                      b.id === selectedId
+                        ? "border-blue-700 dark:border-blue-500"
+                        : "border-amber-300 dark:border-amber-700",
+                    )}
+                  >
                     <button type="button" className="min-w-0 flex-1 truncate text-left" title={b.reason} onClick={() => setSelectedId(b.id)}>
                       {b.reason}
                     </button>
-                    <button type="button" className="rounded bg-emerald-700 px-1.5 font-bold text-white" aria-label="接受" onClick={() => acceptSuggestions([b.id])}>
+                    <button type="button" className="rounded bg-emerald-700 px-1.5 font-bold text-white dark:bg-emerald-600" aria-label="接受" onClick={() => acceptSuggestions([b.id])}>
                       ✓
                     </button>
-                    <button type="button" className="rounded bg-slate-300 px-1.5 font-bold text-slate-900" aria-label="忽略" onClick={() => dismissSuggestions([b.id])}>
+                    <button type="button" className="rounded bg-slate-300 px-1.5 font-bold text-slate-900 dark:bg-slate-700 dark:text-slate-100" aria-label="忽略" onClick={() => dismissSuggestions([b.id])}>
                       ✕
                     </button>
                   </li>
@@ -795,8 +814,12 @@ export function ImageRedactor({ active: tabActive }: { active: boolean }) {
               <Slider label="JPG 品質" value={quality} min={0.5} max={1} step={0.01} onChange={setQuality} />
             </div>
           )}
-          <p className="mt-2 text-[11px] leading-snug text-slate-700">匯出時會重新繪製 Canvas，自動剝除 EXIF / GPS / 裝置資訊。檔名會加上 _redacted。</p>
-          {pendingSuggestions > 0 && <p className="mt-1 rounded bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-900">尚有 {pendingSuggestions} 個建議框未確認，匯出時不會套用。</p>}
+          <p className="mt-2 text-[11px] leading-snug text-slate-700 dark:text-slate-400">匯出時會重新繪製 Canvas，自動剝除 EXIF / GPS / 裝置資訊。檔名會加上 _redacted。</p>
+          {pendingSuggestions > 0 && (
+            <p className="mt-1 rounded bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-900 transition-colors dark:bg-amber-950 dark:text-amber-300">
+              尚有 {pendingSuggestions} 個建議框未確認，匯出時不會套用。
+            </p>
+          )}
           <div className="mt-2">
             <Switch checked={skipEmpty} onChange={setSkipEmpty} label="ZIP 略過沒有遮蔽框的圖片" />
           </div>
